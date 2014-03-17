@@ -94,3 +94,10 @@ MEDIA_URL = '/media/'
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_DIR, 'templates')
 )
+
+# User Authentication
+
+AUTHENTICATION_BACKENDS = (
+    'django_auth_ldap.backend.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
