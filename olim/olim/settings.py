@@ -35,6 +35,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'olim',
+    'olim.apps.storage',
+    'olim.apps.account'
 )
 
 MIDDLEWARE_CLASSES = (

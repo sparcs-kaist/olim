@@ -6,6 +6,9 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r'^$', include('olim.apps.storage.urls')),
+    url(r'^account/', include('olim.apps.account.urls')),
+
     # Media path
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.MEDIA_ROOT}),
 
