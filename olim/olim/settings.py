@@ -101,3 +101,12 @@ AUTHENTICATION_BACKENDS = (
     'django_auth_ldap.backend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+AUTH_LDAP_SERVER_URI = "ldap://sparcs.org"
+
+import ldap
+from django_auth_ldap.config import LDAPSearch
+
+AUTH_LDAP_BIND_DN = ""
+AUTH_LDAP_BIND_PASSWORD = ""
+AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=People,dc=sparcs,dc=org", ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
