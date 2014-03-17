@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Olim Service</title>
+        <!-- META DATA -->
+        <meta charset="utf-8">
+        <meta name="description" content="Olim Service by SPARCS">
+        <meta name="keywords" content="cloud, sparcs, kaist, olim">
+        <meta name="author" content="Jonghyuk Jung, heretor92@gmail.com">
+        <!-- FONT FROM GOOGLE FONTS -->
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato:300,400">
+        <!-- STYLE SHEETS -->
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css">
+        {% block css %}{% endblock %}
+        <!-- SCRIPTS -->
+        <script type="text/javascript" src="{{STATIC_URL}}js/jquery/jquery-1.10.1.min.js"></script>
+        {% block js %}{% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+    </body>
+</html>
