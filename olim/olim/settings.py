@@ -85,3 +85,9 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# Template files
+
+TEMPLATE_DIRS = (
+    os.path.join(PROJECT_DIR, 'templates')
+)
