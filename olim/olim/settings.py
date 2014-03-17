@@ -59,7 +59,7 @@ WSGI_APPLICATION = 'olim.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(PROJECT_DIR, 'db.olim'),
     }
 }
