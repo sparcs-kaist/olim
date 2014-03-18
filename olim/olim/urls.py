@@ -8,6 +8,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^$', include('olim.apps.storage.urls')),
     url(r'^account/', include('olim.apps.account.urls')),
+    url(r'^login/', 'olim.apps.account.views.login_user'),
+    url(r'^login_test/', 'olim.apps.account.views.test'),
 
     # Media path
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.MEDIA_ROOT}),
