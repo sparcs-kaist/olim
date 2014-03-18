@@ -4,9 +4,6 @@ from django.http import *
 from olim.apps.storage.models import Filesys
 
 # Listing the directory
-def listing(request):
-    return HttpResponse("test")
-
 def filesys(request):
     url = request.META["PATH_INFO"]
     url_check = _checkURL(url)
