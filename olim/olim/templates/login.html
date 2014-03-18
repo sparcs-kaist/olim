@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block css %}{% endblock %}
+{% block js %}{% endblock %}
+{% block body %}
+<div id="login-box">
+    <h2 class="box-title">
+        OLIM LOGIN
+    </h2>
+    <form class="login-form" name="LoginForm" action="/login/" method="post">
+        {% csrf_token %}
+        {% if next %}
+            <input type="hidden" name="next" value="{{next}}"/>
+        {% endif %}
+        <div class="input-username">
+            <label class="login-form-label" for="username">SPARCS ID</label>
+            <input type="text" id="username" name="username">
+        </div>
+        <div class="input-password">
+            <label class="login-form-label" for="password">PASSWORD</label>
+            <input type="password" id="password" name="password">
+        </div>
+        <div class="input-enter">
+            <button type="submit">ENTER</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
