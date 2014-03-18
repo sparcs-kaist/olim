@@ -1,10 +1,11 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Filesys(models.Model):
     name = models.CharField(max_length=100)
     url = models.URLField()
     date = models.DateField(auto_now=True)
-    #uploader = models.ForeignKey('account.User')
+    uploader = models.ForeignKey(User)
     thumbnail = models.FileField(upload_to='thumb')
 
     parent_dir = models.CharField(max_length=100)
