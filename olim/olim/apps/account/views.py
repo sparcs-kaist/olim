@@ -5,20 +5,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 
 def login_user(request):
-    logout(request)
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('/login_test')
+    else:
+        username = ""
+        password = ""
 
-    username = ""
-    password = ""
-
-    if request.POST:
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return HttpResponseRedirect('/login_test')
-    
-    return render_to_response('login.html', context_instance=RequestContext(request))
+        if request.POST:
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return HttpResponseRedirect('/login_test')
+        
+        return render_to_response('login.html', context_instance=RequestContext(request))
 
 @login_required
 def test(request):

@@ -7,10 +7,8 @@
         OLIM LOGIN
     </h2>
     <form class="login-form" name="LoginForm" action="/login/" method="post">
+    {% endif %}
         {% csrf_token %}
-        {% if next %}
-            <input type="hidden" name="next" value="{{next}}"/>
-        {% endif %}
         <div class="input-username">
             <label class="login-form-label" for="username">SPARCS ID</label>
             <input type="text" id="username" name="username">
