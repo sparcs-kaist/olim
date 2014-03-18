@@ -6,7 +6,8 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', include('olim.apps.storage.urls')),
+    url(r'^$', lambda request: HttpResponseRedirect('/root')),
+    url(r'^root/', 'olim.apps.storage.views.filesys'),
     url(r'^account/', include('olim.apps.account.urls')),
     url(r'^login/', 'olim.apps.account.views.login_user'),
     url(r'^login_test/', 'olim.apps.account.views.test'),
