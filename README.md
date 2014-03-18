@@ -9,4 +9,4 @@ Developing Environment
 - 1.6.2 Django
 - HTML5
 - CSS3
-- sqlite3
+- mysql
