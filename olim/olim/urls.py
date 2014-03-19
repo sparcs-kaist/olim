@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^root/', 'olim.apps.storage.views.filesys'),
     url(r'^account/', include('olim.apps.account.urls')),
     url(r'^login/', 'olim.apps.account.views.login_user'),
+    url(r'^login/?next=(?P<next>)', 'olim.apps.account.views.login_user'),
     url(r'^login_test/', 'olim.apps.account.views.test'),
 
     # Media path

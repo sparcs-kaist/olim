@@ -17,9 +17,19 @@ def login_user(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return HttpResponseRedirect('/login_test')
-        
-        return render_to_response('login.html', context_instance=RequestContext(request))
+                if request.GET:
+                    next = request.GET['next']
+                    return HttpResponseRedirect(next)
+                else:
+                    return HttpResponseRedirect('/login_test')
+            else:
+                print "NOT SPARCS USER"
+        else:
+            next = ""
+            if request.GET:
+                next = request.GET['next']
+
+        return render_to_response('login.html', {'next':next}, context_instance=RequestContext(request))
 
 @login_required
 def test(request):

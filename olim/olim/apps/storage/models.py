@@ -11,7 +11,8 @@ class Filesys(models.Model):
     thumbnail = models.FileField(upload_to='thumb', null=True, blank=True)
 
     parent_dir = models.CharField(max_length=100, null=True, blank=True)
-    is_dir = models.BooleanField()
+    is_dir = models.BooleanField(default=False)
+    is_secured = models.BooleanField(default=False)
 
     def __str__(self):
         if self.is_dir:
