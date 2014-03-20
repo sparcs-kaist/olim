@@ -10,3 +10,4 @@ Developing Environment
 - HTML5
 - CSS3
 - sqlite3
+- python-ldap
