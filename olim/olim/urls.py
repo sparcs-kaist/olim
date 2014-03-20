@@ -11,7 +11,8 @@ urlpatterns = patterns('',
     url(r'^account/', include('olim.apps.account.urls')),
     url(r'^login/', 'olim.apps.account.views.login_user'),
     url(r'^login/?next=(?P<next>)', 'olim.apps.account.views.login_user'),
-    url(r'^login_test/', 'olim.apps.account.views.test'),
+    url(r'^logout/', 'olim.apps.account.views.logout_user'),
+    url(r'^logout/?next=(?P<next>)', 'olim.apps.account.views.logout_user'),
 
     # Media path
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.MEDIA_ROOT}),

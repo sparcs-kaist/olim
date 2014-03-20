@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 
 def login_user(request):
+    next = ""
+    
     if request.user.is_authenticated():
         return HttpResponseRedirect('/login_test')
     else:
@@ -25,12 +27,18 @@ def login_user(request):
             else:
                 print "NOT SPARCS USER"
         else:
-            next = ""
             if request.GET:
                 next = request.GET['next']
 
         return render_to_response('login.html', {'next':next}, context_instance=RequestContext(request))
 
 @login_required
-def test(request):
-    return HttpResponse("hello, " + request.user.username + "!!")
+def logout_user(request):
+    logout(request)
+    
+    next = ""
+
+    if request.GET:
+        next = request.GET['next']
+
+    return HttpResponseRedirect(next)
