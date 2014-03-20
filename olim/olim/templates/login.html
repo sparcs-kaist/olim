@@ -1,10 +1,13 @@
 {% extends "base.html" %}
-{% block css %}{% endblock %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/login.css">
+{% endblock %}
 {% block js %}{% endblock %}
 {% block body %}
-<div id="login-box">
+<div id="wrapper-helper"></div>
+<div id="wrapper">
     <h2 class="box-title">
-        OLIM LOGIN
+		<b>OLIM</b> LOGIN
     </h2>
     {% if next %}
     <form class="login-form" name="LoginForm" action="/login/?next={{next}}" method="post">
