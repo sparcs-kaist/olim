@@ -7,44 +7,39 @@ from olim.apps.storage.models import Filesys
 
 def filesys(request):
     url = request.META["PATH_INFO"]
-    this_url_name = filter(None, url.split("/"))[-1]
-    this_url = Filesys.objects.filter(name=this_url_name)[0]
-    user_auth = request.user.is_authenticated()
 
-    url_check = ""
+    if _checkURL(url):
+        this_url_name = filter(None, url.split("/"))[-1]
+        this_url = Filesys.objects.filter(name=this_url_name)[0]
+        user_auth = request.user.is_authenticated()
+        url_list = filter(None, url.split("/"))
 
-    url_list = filter(None, url.split("/"))
-    path_list = []
-    dir_contents = []
-    file_contents = []
-    is_child = False
-    parent_path = ""
+        path_list = []
+        dir_contents = []
+        file_contents = []
+        is_child = False
+        parent_path = ""
 
-    # For secured directories and URL check
+        # For secured directories
 
-    if this_url.is_secured:
-        if user_auth:
-            url_check = _checkURL(url)
-        else:
-            return HttpResponseRedirect('/login/?next='+url)
-    else:
-        url_check = _checkURL(url)
+        if this_url.is_secured:
+            if not user_auth:
+                return HttpResponseRedirect('/login/?next='+url)
 
-    # For quick path
+        # For quick path
 
-    for i, item in enumerate(url_list):
-        path = ""
-        for j in range(i+1):
-            path += "/" + url_list[j]
-        path_list.append({'url':url_list[i], 'path':path})
+        for i, item in enumerate(url_list):
+            path = ""
+            for j in range(i+1):
+                path += "/" + url_list[j]
+            path_list.append({'url':url_list[i], 'path':path})
 
-    if this_url_name != "root":
-        is_child = True
-        parent_path = path_list[-2]
+        if this_url_name != "root":
+            is_child = True
+            parent_path = path_list[-2]
 
-    # Make content lists shown to users
+        # Make content lists shown to users
 
-    if url_check:
         this_list = Filesys.objects.filter(parent_dir=this_url_name).order_by('name')
         for item in this_list:
             if item.is_secured:
