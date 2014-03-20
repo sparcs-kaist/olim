@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/list.css">
+{% endblock %}
+{% block js %}{% endblock %}
+{% block body %}
+<div id="wrapper">
+    <div id="wrapper-content">
+        <header id="content-header">
+            <h1 class="content-title">OLIM SERVICE</h1>
+            {% if user.is_authenticated %}
+            <div class="auth-user">
+                <span>hello, {{user.username}}</span>
+                <a class="logout" href="/logout/?next={{this_path}}">Log out</a>
+            </div>
+            {% else %}
+            <a class="login" href="/login/?next={{this_path}}">Log in</a>
+            {% endif %}
+        </header>
+        <nav id="content-quickpath">
+            <ul class="quickpath">
+                {% for path in path_list %}
+                <li class="path">
+                    <a href="{{path.path}}">{{path.url}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            <span>Quick Path</span>
+        </nav>
+        <section id="content-list-nav">
+            <h2 class="list-title"><span>{{this_url}}</span> Directory</h2>
+            <!-- SEARCH FUNCTION WILL BE PLACED HERE -->
+        </section>
+        <section id="content-list">
+            <table>
+                <thead>
+                    <tr class="list-head">
+                        <th class="head-name">
+                            <button type="button" class="sort-down">Name</button>
+                        </th>
+                        <th class="head-format">
+                            <button type="button">Format</button>
+                        </th>
+                        <th class="head-uploader">
+                            <button type="button">Uploader</button>
+                        </th>
+                        <th class="head-date">
+                            <button type="button">Last modified</button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- For back to parent dir -->
+                    {% if is_child %}
+                    <tr class="list-body-back" OnClick="window.location='{{parent_path.path}}'">
+                        <td class="body-back">
+                            Back to <span>{{parent_path.url}}</span> directory
+                        </td>
+                        <td class="body-format">-</td>
+                        <td class="body-uploader">-</td>
+                        <td class="body-date">-</td>
+                    </tr>
+                    {% endif %}
+                    {% if not dir_contents and not file_contents %}
+                    <tr class="list-body-nothing">
+                        <td class="body-nothing">There is no file in this dir.</td>
+                    </tr>
+                    {% endif %}
+                    {% for dir in dir_contents %}
+                    <!-- Directories -->
+                    <tr class="list-body-dir" OnClick="window.location='{{dir.url}}'">
+                        <td class="body-name {% if dir.is_secured %}secured{% endif %}">
+                            {{dir.name}}
+                        </td>
+                        <td class="body-format">{{dir.format}}</td>
+                        <td class="body-uploader">-</td>
+                        <td class="body-date">-</td>
+                    </tr>
+                    {% endfor %}
+                    {% for file in file_contents %}
+                    <tr class="list-body-file">
+                        <td class="body-name {% if file.is_secured %}secured{% endif %}">
+                            {{file.name}}
+                        </td>
+                        <td class="body-format">{{file.format}}</td>
+                        <td class="body-uploader">{{file.uploader}}</td>
+                        <td class="body-date">{{file.date|date:"Y-m-d"}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>
+{% endblock %}
