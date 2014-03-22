@@ -10,4 +10,4 @@ Developing Environment
 - HTML5
 - CSS3
 - sqlite3
-- python-ldap package
+- python-ldap package : $ pip install python-ldap
