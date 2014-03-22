@@ -11,10 +11,10 @@
             {% if user.is_authenticated %}
             <div class="auth-user">
                 <span>hello, {{user.username}}</span>
-                <a class="logout" href="/logout/?next={{this_path}}">Log out</a>
+                <a class="logout" href="/logout/?next={{this_path}}">Logout</a>
             </div>
             {% else %}
-            <a class="login" href="/login/?next={{this_path}}">Log in</a>
+            <a class="login" href="/login/?next={{this_path}}">Login</a>
             {% endif %}
         </header>
         <nav id="content-quickpath">
@@ -52,7 +52,7 @@
                 <tbody>
                     <!-- For back to parent dir -->
                     {% if is_child %}
-                    <tr class="list-body-back" OnClick="window.location='{{parent_path.path}}'">
+                    <tr class="list-body-back" OnClick="location.replace('{{parent_path.path}}')">
                         <td class="body-back">
                             Back to <span>{{parent_path.url}}</span> directory
                         </td>
@@ -68,7 +68,7 @@
                     {% endif %}
                     {% for dir in dir_contents %}
                     <!-- Directories -->
-                    <tr class="list-body-dir" OnClick="window.location='{{dir.url}}'">
+                    <tr class="list-body-dir" OnClick="location.replace('{{dir.url}}')">
                         <td class="body-name {% if dir.is_secured %}secured{% endif %}">
                             {{dir.name}}
                         </td>
@@ -78,7 +78,7 @@
                     </tr>
                     {% endfor %}
                     {% for file in file_contents %}
-                    <tr class="list-body-file">
+                    <tr class="list-body-file" OnClick="window.location='{{file.url}}'">
                         <td class="body-name {% if file.is_secured %}secured{% endif %}">
                             {{file.name}}
                         </td>

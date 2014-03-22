@@ -15,11 +15,11 @@ class Filesys(models.Model):
     is_dir = models.BooleanField(default=False)
     is_secured = models.BooleanField(default=False)
 
-    def __str__(self):
+    def __unicode__(self):
         if self.is_dir:
-            return '/' + self.name
+            return '/' + u'%s' % (self.name)
         else:
-            return self.name
+            return u'%s' % (self.name)
 
     def clean(self):
         if self.name.find('/') > -1:

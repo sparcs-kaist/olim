@@ -40,7 +40,7 @@ def filesys(request):
 
         # Make content lists shown to users
 
-        this_list = Filesys.objects.filter(parent_dir=this_url_name).order_by('name')
+        this_list = Filesys.objects.filter(parent_dir=this_url_name).extra( select={'lower_name': 'lower(name)'}).order_by('lower_name')
         for item in this_list:
             if item.is_secured:
                 if user_auth:

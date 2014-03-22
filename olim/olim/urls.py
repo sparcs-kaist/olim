@@ -17,6 +17,9 @@ urlpatterns = patterns('',
     # Media path
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.MEDIA_ROOT}),
 
+    # Files path
+    url(r'^files/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.FILES_ROOT}),
+
     # Admin Page
     url(r'^admin/', include(admin.site.urls)),
 )
