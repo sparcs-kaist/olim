@@ -2,101 +2,114 @@ from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from django.http import *
 from olim.apps.storage.models import Filesys
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 # Listing the directory
 
-def filesys(request):
-    url = request.META["PATH_INFO"]
+def directory_index(request):
+    this_dir_url = request.META["PATH_INFO"]
 
-    if _checkURL(url):
-        this_url_name = filter(None, url.split("/"))[-1]
-        this_url = Filesys.objects.filter(name=this_url_name)[0]
-        user_auth = request.user.is_authenticated()
-        url_list = filter(None, url.split("/"))
+    if _checkURL(this_dir_url):
+        dir_list = filter(None, this_dir_url.split("/"))
+        this_dir = dir_list[-1]
+        this_dir_data = Filesys.objects.filter(name=this_dir)[0]
 
-        path_list = []
-        dir_contents = []
-        file_contents = []
-        is_child = False
-        parent_path = ""
+        # Response Values.
 
-        # For secured directories
+        url_list = []
+        is_child_dir = False
+        parent_dir = ""
 
-        if this_url.is_secured:
-            if not user_auth:
-                return HttpResponseRedirect('/login/?next='+url)
+        # For secured dir.
 
-        # For quick path
+        if this_dir_data.is_secured and not request.user.is_authenticated():
+            return HttpResponseRedirect('/login/?next='+url)
 
-        for i, item in enumerate(url_list):
-            path = ""
+        # For quick path.
+
+        for i, item in enumerate(dir_list):
+            url = ""
             for j in range(i+1):
-                path += "/" + url_list[j]
-            path_list.append({'url':url_list[i], 'path':path})
+                url += "/" + dir_list[j]
+            url_list.append({'dir':dir_list[i], 'dir_url':url})
 
-        if this_url_name != "root":
-            is_child = True
-            parent_path = path_list[-2]
+        # For link to parent dir.
 
-        # Make content lists shown to users
+        if this_dir != "root":
+            is_child_dir = True
+            parent_dir = url_list[-2]
 
-        this_list = Filesys.objects.filter(parent_dir=this_url_name).extra( select={'lower_name': 'lower(name)'}).order_by('lower_name')
-        for item in this_list:
-            if item.is_secured:
-                if user_auth:
-                    if item.is_dir:
-                        dir_contents.append({
-                            'name': "/"+item.name,
-                            'url': item.url,
-                            'date': item.date,
-                            'uploader': item.uploader,
-                            'thumbnail': item.thumbnail,
-                            'is_secured': item.is_secured,
-                            'format': item.format
-                        })
-                    else:
-                        file_contents.append({
-                            'name': item.name,
-                            'url': item.url,
-                            'date': item.date,
-                            'uploader': item.uploader,
-                            'thumbnail': item.thumbnail,
-                            'is_secured': item.is_secured,
-                            'format': item.format
-                        })
-            else:
-                if item.is_dir:
-                    dir_contents.append({
-                        'name': "/"+item.name,
-                        'url': item.url,
-                        'date': item.date,
-                        'uploader': item.uploader,
-                        'thumbnail': item.thumbnail,
-                        'is_secured': item.is_secured,
-                        'format': item.format
-                    })
-                else:
-                    file_contents.append({
-                        'name': item.name,
-                        'url': item.url,
-                        'date': item.date,
-                        'uploader': item.uploader,
-                        'thumbnail': item.thumbnail,
-                        'is_secured': item.is_secured,
-                        'format': item.format
-                    })
+        return render_to_response('list.html', {
+            'this_dir': this_dir,
+            'this_dir_url': url,
+            'url_list': url_list,
+            'is_child_dir': is_child_dir,
+            'parent_dir': parent_dir
+        }, context_instance=RequestContext(request))
+
+    # For false url.
+
     else:
         return HttpResponse("FALSE URL")
 
-    return render_to_response('list.html', {
-        'dir_contents' : dir_contents,
-        'file_contents' : file_contents,
-        'is_child' : is_child,
-        'parent_path' : parent_path,
-        'this_path' : url,
-        'this_url' : this_url_name,
-        'path_list' : path_list
-    }, context_instance=RequestContext(request))
+def get_list_filesys(request):
+    this_dir = request.GET.get('this_dir', None)
+
+    try:
+        this_list = Filesys.objects.filter(parent_dir=this_dir).extra(select={'lower_name':'lower(name)'}).order_by('lower_name')
+        auth_dir_list = []
+        auth_file_list = []
+
+        dir_list = []
+        file_list = []
+
+        # Sorting
+
+        for item in this_list:
+            if request.user.is_authenticated():
+                if item.is_dir:
+                    auth_dir_list.append(item)
+                else:
+                    auth_file_list.append(item)
+            else:
+                if not item.is_secured:
+                    if item.is_dir:
+                        auth_dir_list.append(item)
+                    else:
+                        auth_file_list.append(item)
+
+        # Content appending
+
+        for item in auth_dir_list:
+            dir_list.append({
+                'name': '/' + item.name,
+                'url': item.url,
+                'date': '-',
+                'uploader': '-',
+                'thumbnail': '',
+                'is_secured': item.is_secured,
+                'format': item.format
+            })
+
+        for item in auth_file_list:
+            file_list.append({
+                'name': item.name,
+                'url': item.url,
+                'date': item.date,
+                'uploader': item.uploader.username,
+                'thumbnail': item.thumbnail.name,
+                'is_secured': item.is_secured,
+                'format': item.format
+            })
+
+        contents = {'dir_list': dir_list, 'file_list': file_list}
+        output = json.dumps(contents, ensure_ascii=False, indent=4, cls=DjangoJSONEncoder)
+
+        return HttpResponse(output)
+
+    except:
+        return HttpResponseBadRequest()
 
 def _checkURL(url):
     url_comp = filter(None, url.split("/"))

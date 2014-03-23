@@ -13,10 +13,9 @@
 #wrapper .box-title{
 	height:56px;
 	background:#15c2d2;
-	font-size:21px;
-	font-weight:300;
-	line-height:21px;
-	padding:17px 20px 18px 20px;
+	font-size:20px;
+	font-weight:400;
+	padding:18px 20px 18px 20px;
 	color:#fff;
 }
 #wrapper .box-title b{

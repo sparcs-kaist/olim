@@ -2,15 +2,7 @@
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/list.css">
 {% endblock %}
-{% block js %}
-<script type="text/javascript" src="{{STATIC_URL}}js/filesys.js"></script>
-<script type="text/javascript">
-    $(document).ready(function(){
-        Data.this_dir = "{{this_dir}}";
-        Filesys.initialize();
-    });
-</script>
-{% endblock %}
+{% block js %}{% endblock %}
 {% block body %}
 <div id="wrapper">
     <div id="wrapper-content">
@@ -60,7 +52,7 @@
                 <tbody>
                     <!-- For back to parent dir -->
                     {% if is_child_dir %}
-                    <tr class="list-body-back" OnClick="location.replace('{{parent_dir.dir_url}}')">
+                    <tr class="list-body-back" OnClick="location.replace('{{parent_dir.url}}')">
                         <td class="body-back">
                             Back to <span>{{parent_dir.dir}}</span> directory
                         </td>
@@ -69,6 +61,32 @@
                         <td class="body-date">-</td>
                     </tr>
                     {% endif %}
+                    {% if not dir_contents and not file_contents %}
+                    <tr class="list-body-nothing">
+                        <td class="body-nothing">There is no file in this dir.</td>
+                    </tr>
+                    {% endif %}
+                    {% for dir in dir_contents %}
+                    <!-- Directories -->
+                    <tr class="list-body-dir" OnClick="location.replace('{{dir.url}}')">
+                        <td class="body-name {% if dir.is_secured %}secured{% endif %}">
+                            {{dir.name}}
+                        </td>
+                        <td class="body-format">{{dir.format}}</td>
+                        <td class="body-uploader">-</td>
+                        <td class="body-date">-</td>
+                    </tr>
+                    {% endfor %}
+                    {% for file in file_contents %}
+                    <tr class="list-body-file" OnClick="window.location='{{file.url}}'">
+                        <td class="body-name {% if file.is_secured %}secured{% endif %}">
+                            {{file.name}}
+                        </td>
+                        <td class="body-format">{{file.format}}</td>
+                        <td class="body-uploader">{{file.uploader}}</td>
+                        <td class="body-date">{{file.date|date:"Y-m-d"}}</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </section>

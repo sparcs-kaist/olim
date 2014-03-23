@@ -9,8 +9,7 @@ class Filesys(models.Model):
     format = models.CharField(max_length=20)
     date = models.DateField(auto_now=True)
     uploader = models.ForeignKey(User)
-    thumbnail = models.FileField(upload_to='thumb', null=True, blank=True)
-
+    thumbnail = models.FileField(upload_to='thumbs', null=True, blank=True)
     parent_dir = models.CharField(max_length=100, null=True, blank=True)
     is_dir = models.BooleanField(default=False)
     is_secured = models.BooleanField(default=False)
