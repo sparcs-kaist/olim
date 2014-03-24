@@ -1,7 +1,7 @@
 #wrapper{
     width:100%;
     height:100%;
-    padding:20px;
+    padding:10px;
 }
 #wrapper-content{
     width:960px;
@@ -208,14 +208,17 @@
     padding:0 20px;
     cursor:pointer;
 }
-#content-list tbody tr:hover{
+#content-list tbody .list-body-dir:hover{
     background:#d9f4f6;
 }
-#content-list tbody .list-body-back{
-    background:#fff9f0;
+#content-list tbody .list-body-file:hover{
+    background:#f6f6f6;
 }
 #content-list tbody .list-body-back:hover{
     background:#fff5e5;
+}
+#content-list tbody .list-body-back{
+    background:#fff9f0;
 }
 #content-list tbody .list-body-back span{
     display:inline;

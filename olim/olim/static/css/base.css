@@ -36,7 +36,7 @@ html{
     height:100%;
 }
 body{
-    background:#38393b;
+    background:#38393b url("/media/res/bg.png") left top repeat;
     width:100%;
     height:100%;
 }

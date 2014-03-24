@@ -8,6 +8,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^$', lambda request: HttpResponseRedirect('/root')),
     url(r'^root/', 'olim.apps.storage.views.directory_index'),
+    url(r'^files/', 'olim.apps.storage.views.file_index'),
     url(r'^account/', include('olim.apps.account.urls')),
     url(r'^login/', 'olim.apps.account.views.login_user'),
     url(r'^login/?next=(?P<next>)', 'olim.apps.account.views.login_user'),
@@ -17,9 +18,6 @@ urlpatterns = patterns('',
 
     # Media path
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.MEDIA_ROOT}),
-
-    # Files path
-    url(r'^files/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.FILES_ROOT}),
 
     # Admin Page
     url(r'^admin/', include(admin.site.urls)),

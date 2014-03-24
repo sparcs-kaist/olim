@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 class Filesys(models.Model):
     name = models.CharField(max_length=100)
-    url = models.CharField(max_length=200)
+    url = models.CharField(max_length=100)
     format = models.CharField(max_length=20)
     date = models.DateField(auto_now=True)
     uploader = models.ForeignKey(User)

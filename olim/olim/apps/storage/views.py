@@ -3,14 +3,16 @@ from django.template import RequestContext
 from django.http import *
 from olim.apps.storage.models import Filesys
 from django.core.serializers.json import DjangoJSONEncoder
-import json
+from django.utils.encoding import smart_str
+from django.conf import settings
+import json, mimetypes, os.path
 
 # Listing the directory
 
 def directory_index(request):
     this_dir_url = request.META["PATH_INFO"]
 
-    if _checkURL(this_dir_url):
+    if _check_dir_url(this_dir_url):
         dir_list = filter(None, this_dir_url.split("/"))
         this_dir = dir_list[-1]
         this_dir_data = Filesys.objects.filter(name=this_dir)[0]
@@ -24,7 +26,7 @@ def directory_index(request):
         # For secured dir.
 
         if this_dir_data.is_secured and not request.user.is_authenticated():
-            return HttpResponseRedirect('/login/?next='+url)
+            return HttpResponseRedirect('/login/?next='+this_dir_url)
 
         # For quick path.
 
@@ -48,10 +50,36 @@ def directory_index(request):
             'parent_dir': parent_dir
         }, context_instance=RequestContext(request))
 
-    # For false url.
+    # For wrong url.
 
     else:
-        return HttpResponse("FALSE URL")
+        return HttpResponse("WRONG URL")
+
+def file_index(request):
+    this_file_url = request.META["PATH_INFO"]
+    this_file_hash = filter(None, this_file_url.split("/"))[-1]
+    this_file_data = Filesys.objects.filter(url=this_file_url)[0]
+    this_file_path = os.path.join(settings.FILES_ROOT, this_file_hash)
+
+    if this_file_data:
+
+        # For secured file.
+
+        if this_file_data.is_secured and not request.user.is_authenticated():
+            return HttpResponseRedirect('/login/?next='+this_file_url)
+        else:
+            this_file = this_file_data.name + '.' + this_file_data.format
+
+            response = HttpResponse(file(this_file_path))
+            response['Content-Type'] = mimetypes.guess_type(this_file)[0]
+            response['Content-Disposition'] = 'attachment; filename=%s' % (smart_str(this_file))
+
+            return response
+    else:
+
+        # For wrong file path.
+
+        return HttpResponse("WRONG FILE PATH")
 
 def get_list_filesys(request):
     this_dir = request.GET.get('this_dir', None)
@@ -111,7 +139,7 @@ def get_list_filesys(request):
     except:
         return HttpResponseBadRequest()
 
-def _checkURL(url):
+def _check_dir_url(url):
     url_comp = filter(None, url.split("/"))
     url_comp.reverse()
     parent_dir = ""

@@ -23,7 +23,7 @@ def login_user(request):
                     next = request.GET['next']
                     return HttpResponseRedirect(next)
                 else:
-                    return HttpResponseRedirect('/login_test')
+                    return HttpResponseRedirect('/root')
             else:
                 print "NOT SPARCS USER"
         else:
