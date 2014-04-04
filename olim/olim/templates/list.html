@@ -1,29 +1,63 @@
 {% extends "base.html" %}
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/list.css">
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/popup.css">
 {% endblock %}
 {% block js %}
-<script type="text/javascript" src="{{STATIC_URL}}js/filesys.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}js/olim.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
         Data.this_dir = "{{this_dir}}";
+        Data.is_auth = "{{user.is_authenticated}}";
+
         Filesys.initialize();
+        Popup.initialize();
+        Session.initialize();
     });
 </script>
 {% endblock %}
 {% block body %}
 <div id="wrapper">
+    <div id="wrapper-popup">
+        <div id="popup-range">
+            <section id="popup-login">
+                <h2 class="popup-title">
+                    <span>LOG IN</span>
+                    <button class="popup-close" type="button">Close Popup</button>
+                </h2>
+                <form class="popup-login-form" action="javascript:;">
+                    {% csrf_token %}
+                    <div class="input-username">
+                        <label class="login-form-label" for="username">SPARCS ID</label>
+                        <input type="text" id="username" name="username">
+                    </div>
+                    <div class="input-password">
+                        <label class="login-form-label" for="password">PASSWORD</label>
+                        <input type="password" id="password" name="password">
+                    </div>
+                    <div class="input-enter">
+                        <button type="submit" id="submit">ENTER</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
     <div id="wrapper-content">
         <header id="content-header">
             <h1 class="content-title">OLIM SERVICE</h1>
-            {% if user.is_authenticated %}
             <div class="auth-user">
-                <span>hello, {{user.username}}</span>
-                <a class="logout" href="/logout/?next={{this_dir_url}}">Logout</a>
+                <button class="user-menu">{{user.username}}</button>
+                <button class="file-upload">Upload</button>
             </div>
-            {% else %}
-            <a class="login" href="/login/?next={{this_dir_url}}">Login</a>
-            {% endif %}
+            <ul class="user-menu-list">
+                <li class="profile">
+                    <button class="profile-button">Profile</button>
+                </li>
+                <li class="logout">
+                    <button class="logout-button">Logout</button>
+                </li>
+            </ul>
+            <button type="button" class="login">Log in</button>
         </header>
         <nav id="content-quickpath">
             <ul class="quickpath">

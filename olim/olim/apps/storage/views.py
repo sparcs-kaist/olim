@@ -47,7 +47,7 @@ def directory_index(request):
             'this_dir_url': url,
             'url_list': url_list,
             'is_child_dir': is_child_dir,
-            'parent_dir': parent_dir
+            'parent_dir': parent_dir,
         }, context_instance=RequestContext(request))
 
     # For wrong url.

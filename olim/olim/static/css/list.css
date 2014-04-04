@@ -15,6 +15,8 @@
     height:80px;
     padding:22px 20px;
     background:#15c2d2;
+	position:relative;
+	z-index:1;
 }
 #content-header .content-title{
     font-size:0px;
@@ -28,13 +30,16 @@
     display:inline-block;
     height:36px;
     padding:0px 12px;
-    padding-top:10px;
+    padding-top:1px;
     background:#12a5b2;
     text-transform:uppercase;
     font-size:15px;
     color:#fff;
     float:right;
     border-radius:2px;
+    outline:none;
+    border:none;
+    cursor:pointer;
 }
 #content-header .login:hover{
     background:#0a7882;
@@ -43,33 +48,50 @@
     display:inline-block;
     float:right;
 }
-#content-header .auth-user span{
+#content-header .auth-user button.user-menu{
     display:inline-block;
     height:36px;
-    padding:0px 12px;
-    padding-top:10px;
-    background:#12a5b2;
+    padding:1px 34px 0px 12px;
+    background:#12a5b2 url("/media/res/img_user_menu.png") right 50% no-repeat;
     text-transform:capitalize;
     font-size:15px;
     color:#fff;
     float:left;
     border-radius:2px;
     margin-right:8px;
+    border:0;
+    cursor:pointer;
+    outline:none;
 }
-#content-header .auth-user .logout{
+#content-header .auth-user button.user-menu:hover{
+    background-color:#0a7882;
+}
+#content-header .auth-user button.file-upload{
     display:inline-block;
     height:36px;
     padding:0px 12px;
-    padding-top:10px;
+    padding-top:1px;
     background:#e94e1b;
     text-transform:uppercase;
     font-size:15px;
     color:#fff;
     float:left;
     border-radius:2px;
+    outline:none;
+    border:0;
+    cursor:pointer;
 }
-#content-header .logout:hover{
+#content-header .auth-user button.file-upload:hover{
     background:#db420f;
+}
+#content-header .user-menu-list{
+    position:absolute;
+	top:0;
+	left:0;
+	background:blue;
+}
+#content-header .user-menu-list li{
+	
 }
 
 /* QUICK PATH */

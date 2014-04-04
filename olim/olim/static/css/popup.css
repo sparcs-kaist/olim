@@ -1,0 +1,105 @@
+#wrapper-popup{
+    position:absolute;
+    display:none;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.7);
+    z-index:10;
+}
+#popup-range{
+    position:relative;
+    display:block;
+    width:960px;
+    height:100%;
+    margin:0px auto;
+}
+#popup-login{
+    width:320px;
+    height:294px;
+    border-radius:4px;
+    background:#fff;
+    position:absolute;
+    top:50%;
+    left:50%;
+    margin:-147px 0 0 -160px;
+    display:none;
+    z-index:100;
+}
+#popup-login .popup-title{
+    height:56px;
+    background:#15c2d2;
+    padding:18px 20px;
+}
+#popup-login .popup-title span{
+    font-size:20px;
+    font-weight:400;
+    color:#fff;
+    float:left;
+}
+#popup-login .popup-title .popup-close{
+    font-size:0;
+    width:16px;
+    height:16px;
+    background:url("/media/res/img_close.png") left top no-repeat;
+    border:0;
+    outline:none;
+    float:right;
+    margin-top:2px;
+    cursor:pointer;
+}
+#popup-login .popup-login-form{
+    padding:20px;
+}
+#popup-login .popup-login-form label{
+    font-size:15px;
+    line-height:15px;
+    margin-bottom:4px;
+    color:#6f7375;
+}
+#popup-login .popup-login-form input{
+    height:40px;
+    width:280px;
+    padding:11px 8px;
+    font-size:18px;
+    line-height:18px;
+    color:#0e929e;
+    font-weight:400;
+    border:1px solid #d7d8d9;
+    border-radius:2px;
+    margin-bottom:20px;
+    outline:none;
+}
+#popup-login .popup-login-form input:focus{
+    border:1px solid #ffb400;
+    background:#fffaf2;
+}
+#popup-login .popup-login-form .input-enter button{
+    width:88px;
+    height:40px;
+    padding:10px 0;
+    text-align:center;
+    font-size:20px;
+    line-height:20px;
+    font-weight:400;
+    color:#fff;
+    background:#0e929e;
+    border:0;
+    border-radius:2px;
+    outline:none;
+    float:right;
+    cursor:pointer;
+    text-indent:0px;
+}
+#popup-login .popup-login-form .input-enter button:hover{
+    background:#075a62;
+}
+#popup-login .popup-login-form .input-enter button.disabled:hover{
+    background:#0b7079 url("/media/res/img_loading.gif") 50% 50% no-repeat;
+}
+#popup-login .popup-login-form .input-enter button.disabled{
+    background:#0b7079 url("/media/res/img_loading.gif") 50% 50% no-repeat;
+    cursor:progress;
+    text-indent:-9999px;
+}
