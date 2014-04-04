@@ -15,8 +15,8 @@
     height:80px;
     padding:22px 20px;
     background:#15c2d2;
-	position:relative;
-	z-index:1;
+    position:relative;
+    z-index:1;
 }
 #content-header .content-title{
     font-size:0px;
@@ -59,12 +59,12 @@
     float:left;
     border-radius:2px;
     margin-right:8px;
-    border:0;
+    border:1px solid #0e98a4;
     cursor:pointer;
     outline:none;
 }
 #content-header .auth-user button.user-menu:hover{
-    background-color:#0a7882;
+    background-color:#0c9aa7;
 }
 #content-header .auth-user button.file-upload{
     display:inline-block;
@@ -78,7 +78,7 @@
     float:left;
     border-radius:2px;
     outline:none;
-    border:0;
+    border:1px solid #ae3209;
     cursor:pointer;
 }
 #content-header .auth-user button.file-upload:hover{
@@ -86,12 +86,12 @@
 }
 #content-header .user-menu-list{
     position:absolute;
-	top:0;
-	left:0;
-	background:blue;
+    top:0;
+    left:0;
+    background:blue;
 }
 #content-header .user-menu-list li{
-	
+    
 }
 
 /* QUICK PATH */
