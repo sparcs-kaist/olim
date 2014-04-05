@@ -49,14 +49,18 @@
                 <button class="user-menu">{{user.username}}</button>
                 <button class="file-upload">Upload</button>
             </div>
-            <ul class="user-menu-list">
-                <li class="profile">
-                    <button class="profile-button">Profile</button>
-                </li>
-                <li class="logout">
-                    <button class="logout-button">Logout</button>
-                </li>
-            </ul>
+            <div class="user-menu-list">
+                <div class="menu-deco"></div>
+                <ul class="menu-list">
+                    <li class="logout">
+                        <span class="logout-loading"></span>
+                        <button class="logout-button">Logout</button>
+                    </li>
+                    <li class="profile">
+                        <button class="profile-button">Profile</button>
+                    </li>
+                </ul>
+            </div>
             <button type="button" class="login">Log in</button>
         </header>
         <nav id="content-quickpath">

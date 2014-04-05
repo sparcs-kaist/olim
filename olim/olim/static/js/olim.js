@@ -26,7 +26,6 @@ Filesys.getListFilesys = function(){
 
 Filesys.addListItems = function(listData){
     Filesys.data = listData;
-    Data.filesys = listData;
 
     if(Filesys.data.dir_list.length == 0 && Filesys.data.file_list.length == 0){
         var tag = 
@@ -43,12 +42,11 @@ Filesys.addListItems = function(listData){
         for(var i=0;i<dir_list_length;i++){
             var dir = Filesys.data.dir_list[i];
             var secured = '';
-            console.log(dir.is_secured);
             if(dir.is_secured){
                 secured = 'secured';
             }
             var tag =
-                '<tr class="list-body-dir" onclick="' + "location.replace('" + dir.url + "')" + '">' +
+                '<tr class="list-body-dir" onclick="' + "location.replace('" + dir.url + "')" + '"' + ' style="display:none;">' + 
                     '<td class="body-name ' + secured + '">' + dir.name + '</td>' +
                     '<td class="body-format">' + dir.format + '</td>' +
                     '<td class="body-uploader">' + dir.uploader + '</td>' +
@@ -69,7 +67,7 @@ Filesys.addListItems = function(listData){
                 secured = 'secured';
             }
             var tag = 
-                '<tr class="list-body-file" onclick="' + "location.replace('" + file.url + "')" + '">' +
+                '<tr class="list-body-file" onclick="' + "location.replace('" + file.url + "')" + '"' + ' style="display:none;">' + 
                     '<td class="body-name ' + secured + '">' + file.name + '</td>' +
                     '<td class="body-format">' + file.format + '</td>' +
                     '<td class="body-uploader">' + file.uploader + '</td>' +
@@ -82,6 +80,10 @@ Filesys.addListItems = function(listData){
                 $('tbody tr:last').after(tag);
             }
         }
+
+        $('tbody tr').each(function(i, v){
+            $(this).fadeTo(100*i, 1);
+        });
     }
 };
 
@@ -96,14 +98,18 @@ Popup.initialize = function(){
 
     Popup.popup_bg = $("#wrapper-popup");
 
-    Popup.btn_login = $("button.login")[0];
+    Popup.btn_login = $("button.login");
     Popup.sec_login = $("#popup-login");
+
+    Popup.btn_umenu = $("button.user-menu");
+    Popup.sec_umenu = $("div.user-menu-list");
 
     Popup.registerHandlers();
 };
 
 Popup.registerHandlers = function(){
     $(Popup.btn_login).bind('click', Popup.popupLogin);
+    $(Popup.btn_umenu).bind('click', Popup.userMenu);
 };
 
 Popup.popupClose = function(elem){
@@ -147,15 +153,24 @@ Popup.popupLogin = function(){
         var request = $.ajax({
             type: 'POST',
             url: '/login/',
-            data: login_data,
+            data: login_data
         });
 
         // Login Successed
         request.done(function(msg){
             $(Popup.btn_login).hide();
-            $("div.auth-user").show();
+            $("div.auth-user").fadeTo(50, 1);
             $("div.auth-user").find("button.user-menu").html(msg);
             Popup.popupClose($(Popup.sec_login));
+
+            // Filesys recall
+            $('tbody tr.list-body-dir').fadeTo(200, 0, function(){
+                $(this).remove();
+            });
+            $('tbody tr.list-body-file').fadeTo(200, 0, function(){
+                $(this).remove();
+            });
+            Filesys.getListFilesys();
         });
         // Login Failed
         request.fail(function(err){
@@ -186,7 +201,56 @@ Popup.popupLogin = function(){
 };
 
 Popup.userMenu = function(){
+    if($(Popup.sec_umenu).css('display') == 'none'){
+        $(Popup.sec_umenu).fadeTo(100, 1);
+        $(Popup.btn_umenu).css({
+            'background-image': 'url("/media/res/img_user_menu_up.png")'
+        });
 
+        var btn_logout = $("button.logout-button");
+        var btn_profile = $("button.profile-button");
+
+        $(btn_logout).click(function(){
+            $(this).hide();
+            $("span.logout-loading").fadeTo(100, 1);
+            var request = $.ajax({
+                type: 'POST',
+                url: '/logout/'
+            });
+
+            // Logout Successed
+            request.done(function(){
+                $(Popup.sec_umenu).fadeTo(100, 0, function(){$(this).hide();});
+                $("div.auth-user").fadeTo(150, 0, function(){
+                    $(this).hide();
+                    $(Popup.btn_login).fadeTo(200, 1);
+                });
+                $("span.logout-loading").hide();
+                $(btn_logout).show();
+
+                // Reactive login section
+                $("input#username").val('').removeAttr('disabled');
+                $("input#password").val('').removeAttr('disabled');
+                $("button#submit").removeAttr('disabled').removeClass('disabled');
+
+                // Filesys recall
+                $('tbody tr.list-body-dir').fadeTo(200, 0, function(){
+                    $(this).remove();
+                });
+                $('tbody tr.list-body-file').fadeTo(200, 0, function(){
+                    $(this).remove();
+                });
+                Filesys.getListFilesys();
+            });
+        });
+    }else{
+        $(Popup.sec_umenu).fadeTo(100, 0, function(){
+            $(this).hide();
+        });
+        $(Popup.btn_umenu).css({
+            'background-image': 'url("/media/res/img_user_menu_down.png")'
+        });
+    }
 };
 
 var Session = {};

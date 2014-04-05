@@ -11,8 +11,7 @@ urlpatterns = patterns('',
     url(r'^files/', 'olim.apps.storage.views.file_index'),
     url(r'^account/', include('olim.apps.account.urls')),
     url(r'^login/$', 'olim.apps.account.views.login_user'),
-    url(r'^logout/', 'olim.apps.account.views.logout_user'),
-    url(r'^logout/?next=(?P<next>)', 'olim.apps.account.views.logout_user'),
+    url(r'^logout/$', 'olim.apps.account.views.logout_user'),
     url(r'^filesys/getlist/$', 'olim.apps.storage.views.get_list_filesys'),
 
     # Media path
