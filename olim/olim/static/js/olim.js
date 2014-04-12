@@ -1,256 +1,343 @@
 var Data = {};
 
+// Filesys class
 var Filesys = {};
 
 Filesys.initialize = function(){
-    this.registerHandlers();
-    this.getListFilesys();
+    Filesys.getUrlData();
 };
-
-Filesys.registerHandlers = function(){
-};
-
-Filesys.getListFilesys = function(){
+Filesys.getUrlData = function(inputData){
+    if(typeof(inputData) == 'undefined'){
+        inputData = {
+            'p_dir_id': Data.p_dir.id,
+            'p_dir_url': Data.p_dir.url
+        }
+    }
     $.ajax({
         type: 'GET',
-        url: '/filesys/getlist/',
-        data : {'this_dir': Data.this_dir},
+        url: '/filesys/getdata/',
+        data: inputData,
         dataType: 'json',
         success: function(resObj){
+            Filesys.addQuickPath(resObj);
             Filesys.addListItems(resObj);
         },
         error: function(xhr){
+            console.log(xhr.responseText);
         }
     });
 };
+Filesys.addQuickPath = function(resData){
+    // Add quick path items
+    Data.quick_path = resData.quick_path;
 
-Filesys.addListItems = function(listData){
-    Filesys.data = listData;
+    for(var i=0; i<Data.quick_path.length; i++){
+        var a_last = $('.quickpath-list li:last');
+        var q_tag = Tags.quickpath(Data.quick_path[i]);
+        if(a_last.length == 0){
+            $('.quickpath-list').html(q_tag);
+        }else{
+            $(a_last).after(q_tag);
+        }
+    }
 
-    if(Filesys.data.dir_list.length == 0 && Filesys.data.file_list.length == 0){
-        var tag = 
-            '<tr class="list-body-nothing">' +
-                '<td class="body-nothing">There is no file in this dir.</td>' +
-            '</tr>';
+    // Store DOM elements
+    Filesys.quickPathDOM = $('.quickpath-list a');
 
-        $('tbody tr:last').after(tag);
+    $(Filesys.quickPathDOM).click(function(){
+        Filesys.moveDirectory("", $(this).attr("href"));
+        return false;
+    });
+};
+Filesys.addListItems = function(resData){
+    Data.p_dir = resData.p_dir;
+    Data.pp_dir = resData.pp_dir;
+    Data.dir_list = resData.dir_list;
+    Data.file_list = resData.file_list;
+
+    // Change directory title
+    var t_tag = '<span>' + Data.p_dir.name + '</span> directory';
+    $('h2.list-title').html(t_tag);
+
+    // Add link row to parent dir
+    if(Data.pp_dir != ""){
+        var b_tag = Tags.list_body_back(Data.pp_dir);
+        $('tbody').html(b_tag);
+    }
+
+    // Add dir and file items
+    if(Data.dir_list.length == 0 && Data.file_list.length == 0){
+        var n_tag = Tags.list_body_nothing();
+        $('tbody tr:last').after(n_tag);
     }else{
-        var dir_list_length = Filesys.data.dir_list.length;
-        var file_list_length = Filesys.data.file_list.length;
-
-        // Adding dir data.
-        for(var i=0;i<dir_list_length;i++){
-            var dir = Filesys.data.dir_list[i];
-            var secured = '';
-            if(dir.is_secured){
-                secured = 'secured';
-            }
-            var tag =
-                '<tr class="list-body-dir" onclick="' + "location.replace('" + dir.url + "')" + '"' + ' style="display:none;">' + 
-                    '<td class="body-name ' + secured + '">' + dir.name + '</td>' +
-                    '<td class="body-format">' + dir.format + '</td>' +
-                    '<td class="body-uploader">' + dir.uploader + '</td>' +
-                    '<td class="body-date">' + dir.date + '</td>' +
-                '</tr>';
-
-            if(i == 0 && Data.this_dir == "root"){
-                $('tbody').html(tag);
+        for(var i=0; i<Data.dir_list.length; i++){
+            var tr_last = $('tbody tr:last');
+            var d_tag = Tags.list_body_dir(Data.dir_list[i]);
+            if(tr_last.length == 0){
+                $('tbody').html(d_tag);
             }else{
-                $('tbody tr:last').after(tag);
+                $(tr_last).after(d_tag);
             }
         }
-        // Adding file data.
-        for(var i=0;i<file_list_length;i++){
-            var file = Filesys.data.file_list[i];
-            var secured = '';
-            if(file.is_secured){
-                secured = 'secured';
-            }
-            var tag = 
-                '<tr class="list-body-file" onclick="' + "location.replace('" + file.url + "')" + '"' + ' style="display:none;">' + 
-                    '<td class="body-name ' + secured + '">' + file.name + '</td>' +
-                    '<td class="body-format">' + file.format + '</td>' +
-                    '<td class="body-uploader">' + file.uploader + '</td>' +
-                    '<td class="body-date">' + file.date + '</td>' +
-                '</tr>';
-
-            if(i == 0 && dir_list_length == 0){
-                $('tbody').html(tag);
+        for(var i=0; i<Data.file_list.length; i++){
+            var tr_last = $('tbody tr:last');
+            var f_tag = Tags.list_body_file(Data.file_list[i]);
+            if(tr_last.length == 0){
+                $('tbody').html(f_tag);
             }else{
-                $('tbody tr:last').after(tag);
+                $(tr_last).after(f_tag);
             }
         }
+    }
 
-        $('tbody tr').each(function(i, v){
-            $(this).fadeTo(100*i, 1);
+    // Store DOM elements
+    Filesys.listItemsDOM = $('tbody tr');
+
+    $(Filesys.listItemsDOM).click(function(){
+        var item_id = $(this).attr("id");
+        var item_sort = item_id.split('-');
+
+        if(item_sort[0] == 'd'){
+            Filesys.moveDirectory(item_sort[1], "");
+        }else{
+            Filesys.fileDownload(item_sort[1], "");
+        }
+    });
+};
+Filesys.moveDirectory = function(dir_id, dir_url){
+    data = {
+        'p_dir_id': dir_id,
+        'p_dir_url': dir_url
+    }
+
+    $(Filesys.quickPathDOM).remove();
+    $(Filesys.listItemsDOM).remove();
+    Filesys.getUrlData(data);
+};
+Filesys.fileDownload = function(file_id, file_url){
+    if(file_url == ""){
+        $.each(Data.file_list, function(index, item){
+            if(item.id == file_id){
+                window.open(item.url);
+            }
         });
+    }else{
+        window.open(file_url);
     }
 };
+
+// Popup class
 
 var Popup = {};
 
 Popup.initialize = function(){
-    if(Data.is_auth == "True"){
-        $("button.login").hide();
+    if(Data.is_auth){
+        $('.header-auth-user').show();
     }else{
-        $("div.auth-user").hide();
+        $('.header-login').show();
     }
 
-    Popup.popup_bg = $("#wrapper-popup");
-
-    Popup.btn_login = $("button.login");
-    Popup.sec_login = $("#popup-login");
-
-    Popup.btn_umenu = $("button.user-menu");
-    Popup.sec_umenu = $("div.user-menu-list");
+    Popup.bg = $('#popup-wrapper');
+    Popup.login = {
+        btn: $('button.login-button'),
+        sec: $('section#popup-login'),
+        cls: $('button.login-close'),
+        form: $('form.login-form'),
+        username: $('input#username'),
+        password: $('input#password'),
+        submit: $('button#submit')
+    };
+    Popup.umenu = {
+        btn: $('button.user-menu-button'),
+        sec: $('section#popup-umenu'),
+        logout: $('button.logout-button'),
+        profile: $('button.profile-button')
+    };
 
     Popup.registerHandlers();
 };
-
 Popup.registerHandlers = function(){
-    $(Popup.btn_login).bind('click', Popup.popupLogin);
-    $(Popup.btn_umenu).bind('click', Popup.userMenu);
+    $(Popup.login.btn).bind('click', function(){Popup.popupLogin(true)});
+    $(Popup.login.cls).bind('click', function(){Popup.popupLogin(false)});
+    $(Popup.umenu.btn).bind('click', function(){Popup.popupUmenu()});
 };
-
-Popup.popupClose = function(elem){
-    $(Popup.popup_bg).fadeTo(100, 0, function(){
-        $(this).hide();
-    });
-    $(elem).fadeTo(50, 0, function(){
-        $(this).hide();
-    });
+Popup.popupBack = function(st){
+    if(st){
+        $(Popup.bg).fadeTo(50, 1);
+    }else{
+        $(Popup.bg).fadeTo(100, 0, function(){
+            $(this).hide();
+        });
+    }
 };
+Popup.popupLogin = function(st){
+    if(st){
+        Popup.popupBack(true);
+        $(Popup.login.sec).fadeTo(100, 1);
+        $(Popup.login.username).focus();
 
-Popup.popupLogin = function(){
-    $(Popup.popup_bg).fadeTo(50, 1);
-    $(Popup.sec_login).fadeTo(200, 1);
+        $(Popup.login.form).submit(function(){
+            $(Popup.login.username).attr('disabled', 'disabled');
+            $(Popup.login.password).attr('disabled', 'disabled');
+            $(Popup.login.submit).attr('disabled', 'disabled').addClass('disabled');
 
-    var username_input = $("input#username");
-    var password_input = $("input#password");
-    var submit_button = $("button#submit");
-    var close_btn = $(Popup.sec_login).find("button.popup-close");
-
-    $(username_input).focus();
-
-    $(close_btn).click(function(){
-        Popup.popupClose($(Popup.sec_login));
-    });
-
-    var login_form = $(Popup.sec_login).find("form");
-
-    $(login_form).submit(function(){
-        $(username_input).attr('disabled', 'disabled');
-        $(password_input).attr('disabled', 'disabled');
-        $(submit_button).attr('disabled', 'disabled').addClass('disabled');
-
-        var username = $(username_input).val();
-        var password = $(password_input).val();
-        var login_data = {
-            'username': username,
-            'password': password,
-        };
-
-        var request = $.ajax({
-            type: 'POST',
-            url: '/login/',
-            data: login_data
-        });
-
-        // Login Successed
-        request.done(function(msg){
-            $(Popup.btn_login).hide();
-            $("div.auth-user").fadeTo(50, 1);
-            $("div.auth-user").find("button.user-menu").html(msg);
-            Popup.popupClose($(Popup.sec_login));
-
-            // Filesys recall
-            $('tbody tr.list-body-dir').fadeTo(200, 0, function(){
-                $(this).remove();
+            var username = $(Popup.login.username).val();
+            var login_data = {
+                'username': $(Popup.login.username).val(),
+                'password': $(Popup.login.password).val()
+            };
+            var request = $.ajax({
+                type: 'POST',
+                url: '/login/',
+                data: login_data
             });
-            $('tbody tr.list-body-file').fadeTo(200, 0, function(){
-                $(this).remove();
-            });
-            Filesys.getListFilesys();
-        });
-        // Login Failed
-        request.fail(function(err){
-            $(username_input).removeAttr('disabled');
-            $(password_input).removeAttr('disabled');
-            $(submit_button).removeAttr('disabled').removeClass('disabled');
+            request.done(function(){
+                Popup.popupLogin(false);
+                $('.header-login').hide(function(){
+                    $('.header-auth-user').show();
+                    $('.user-menu-button').html(username);
+                });
 
-            var i = 0
-            var anime = function(){
-                i++;
-                $(Popup.sec_login).animate({
-                    "background-color": "#fff4e2"
-                }, 200, function(){
-                    $(this).animate({
-                        "background-color": "#fff"
+                $(Popup.login.username).val('').removeAttr('disabled');
+                $(Popup.login.password).val('').removeAttr('disabled');
+                $(Popup.login.submit).removeAttr('disabled').removeClass('disabled')
+                Filesys.moveDirectory(Data.p_dir.id, Data.p_dir.url);
+            });
+            request.fail(function(){
+                $(Popup.login.username).removeAttr('disabled');
+                $(Popup.login.password).val('').removeAttr('disabled');
+                $(Popup.login.submit).removeAttr('disabled').removeClass('disabled')
+
+                var i = 0
+                var anime = function(){
+                    i++;
+                    $(Popup.login.sec).animate({
+                        'background-color': '#fff4e2'
+                    }, 200, function(){
+                        $(this).animate({
+                            'background-color': '#fff'
                         }, 200, function(){
                             if(i < 2){
                                 anime();
                             }else{
-                                $(username_input).focus();
+                                $(Popup.login.username).focus();
                             }
                         });
-                });
-            };
-            anime();
-        });
-    });
-};
-
-Popup.userMenu = function(){
-    if($(Popup.sec_umenu).css('display') == 'none'){
-        $(Popup.sec_umenu).fadeTo(100, 1);
-        $(Popup.btn_umenu).css({
-            'background-image': 'url("/media/res/img_user_menu_up.png")'
-        });
-
-        var btn_logout = $("button.logout-button");
-        var btn_profile = $("button.profile-button");
-
-        $(btn_logout).click(function(){
-            $(this).hide();
-            $("span.logout-loading").fadeTo(100, 1);
-            var request = $.ajax({
-                type: 'POST',
-                url: '/logout/'
-            });
-
-            // Logout Successed
-            request.done(function(){
-                $(Popup.sec_umenu).fadeTo(100, 0, function(){$(this).hide();});
-                $("div.auth-user").fadeTo(150, 0, function(){
-                    $(this).hide();
-                    $(Popup.btn_login).fadeTo(200, 1);
-                });
-                $("span.logout-loading").hide();
-                $(btn_logout).show();
-
-                // Reactive login section
-                $("input#username").val('').removeAttr('disabled');
-                $("input#password").val('').removeAttr('disabled');
-                $("button#submit").removeAttr('disabled').removeClass('disabled');
-
-                // Filesys recall
-                $('tbody tr.list-body-dir').fadeTo(200, 0, function(){
-                    $(this).remove();
-                });
-                $('tbody tr.list-body-file').fadeTo(200, 0, function(){
-                    $(this).remove();
-                });
-                Filesys.getListFilesys();
+                    });
+                };
+                anime();
             });
         });
     }else{
-        $(Popup.sec_umenu).fadeTo(100, 0, function(){
+        Popup.popupBack(false);
+        $(Popup.login.sec).fadeTo(50, 0, function(){
             $(this).hide();
         });
-        $(Popup.btn_umenu).css({
-            'background-image': 'url("/media/res/img_user_menu_down.png")'
-        });
     }
+};
+Popup.popupUmenu = function(){
+    if($(Popup.umenu.sec).css('display') == "none"){
+        $(Popup.bg).addClass('umenu-bg');
+        $(Popup.bg).fadeTo(50, 1);
+        $(Popup.umenu.sec).fadeTo(100, 1);
+        $(Popup.umenu.btn).addClass('clicked');
+
+        $(Popup.umenu.logout).click(function(){
+            Popup.popupLogout();
+        });
+        $(Popup.umenu.profile).click(function(){
+            alert("PROFILE MENU");
+        });
+    }else{
+        $(Popup.bg).fadeTo(100, 0, function(){
+            $(this).hide().removeClass('umenu-bg');
+        });
+        $(Popup.umenu.sec).fadeTo(50, 0, function(){
+            $(this).hide();
+        });
+        $(Popup.umenu.btn).removeClass('clicked');
+    }
+};
+Popup.popupLogout = function(){
+    $(Popup.umenu.logout).hide();
+    $('.logout-loading').fadeTo(50, 1);
+
+    var request = $.ajax({
+        type: 'POST',
+        url: '/logout/'
+    });
+    request.done(function(){
+        Popup.popupUmenu();
+        $('.logout-loading').hide();
+        $(Popup.umenu.logout).show();
+
+        $('.header-auth-user').hide();
+        $('.header-login').show();
+        Filesys.moveDirectory(Data.p_dir.id, Data.p_dir.url);
+    });
+    request.fail(function(){
+        $('.logout-loading').hide();
+        $(Popup.umenu.logout).show();
+    });
+};
+
+// Used tags
+
+Tags = {};
+
+Tags.quickpath = function(obj){
+    var tag =
+        '<li class="quickpath">' +
+            '<a href="' + obj.url + '">' + obj.name + '</a>' +
+        '</li>';
+    return tag;
+};
+Tags.list_body_back = function(obj){
+    var tag =
+        '<tr id="d-' + obj.id + '" class="list-body-back">' +
+            '<td class="body-back">' +
+                'Back to <span>' + obj.name + '</span> directory' +
+            '</td>' +
+            '<td class="body-format">-</td>' +
+            '<td class="body-uploader">-</td>' +
+            '<td class="body-date">-</td>' +
+        '</tr>';
+    return tag;
+};
+Tags.list_body_nothing = function(){
+    var tag = 
+        '<tr class="list-body-nothing">' +
+            '<td class="body-nothing">There is no file in this dir.</td>' +
+        '</tr>';
+    return tag;
+};
+Tags.list_body_dir = function(obj){
+    var secured = "";
+    if(obj.is_secured){
+        secured = " secured";
+    }
+    var tag =
+        '<tr id="d-' + obj.id + '" class="list-body-dir">' +
+            '<td class="body-name' + secured + '">' + obj.name + '</td>' +
+            '<td class="body-format">' + obj.format + '</td>' +
+            '<td class="body-uploader">' + obj.uploader + '</td>' +
+            '<td class="body-date">' + obj.date + '</td>' +
+        '</tr>';
+    return tag;
+};
+Tags.list_body_file = function(obj){
+    var secured = "";
+    if(obj.is_secured){
+        secured = " secured";
+    }
+    var tag =
+        '<tr id="f-' + obj.id + '" class="list-body-file">' +
+            '<td class="body-name' + secured + '">' + obj.name + '</td>' +
+            '<td class="body-format">' + obj.format + '</td>' +
+            '<td class="body-uploader">' + obj.uploader + '</td>' +
+            '<td class="body-date">' + obj.date + '</td>' +
+        '</tr>';
+    return tag;
 };
 
 var Session = {};
@@ -263,10 +350,9 @@ Session.initialize = function(){
                 var csrftoken = Session.getCookie('csrftoken');
                 xhr.setRequestHeader('X-CSRFToken', csrftoken);
             }
-        },
+        }
     });
 };
-
 Session.getCookie = function(name){
     var cookieValue = null;
     if(document.cookie && document.cookie != ''){
@@ -281,7 +367,6 @@ Session.getCookie = function(name){
     }
     return cookieValue;
 };
-
 Session.csrfSafeMethod = function(method){
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 };

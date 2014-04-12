@@ -27,3 +27,8 @@ def logout_user(request):
         return HttpResponse("logout successed.")
     except:
         return HttpResponseBadRequest("something went wrong.")
+
+def need_login(request):
+    next = request.GET.get('n', None)
+    cause = request.GET.get('r', None)
+    return HttpResponse(next + cause)

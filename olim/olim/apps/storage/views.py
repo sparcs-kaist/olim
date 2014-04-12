@@ -1,156 +1,140 @@
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
-from django.http import *
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, StreamingHttpResponse
 from olim.apps.storage.models import Filesys
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.encoding import smart_str
 from django.conf import settings
 import json, mimetypes, os.path
+from django.core.exceptions import ObjectDoesNotExist
 
-# Listing the directory
+def index(request):
+    path = request.META["PATH_INFO"]
+    ch_url = _check_dir_url(path)
 
-def directory_index(request):
-    this_dir_url = request.META["PATH_INFO"]
+    if ch_url[0]:
+        p_dir = ch_url[1]
 
-    if _check_dir_url(this_dir_url):
-        dir_list = filter(None, this_dir_url.split("/"))
-        this_dir = dir_list[-1]
-        this_dir_data = Filesys.objects.filter(name=this_dir)[0]
+        if p_dir.is_secured and not request.user.is_authenticated():
+            return HttpResponseRedirect('/nlogin/?n='+p_dir.url+'&r=secured_dir')
+        else:
+            return render_to_response('index.html', {
+                'p_dir_id': p_dir.id,
+                'p_dir_name': p_dir.name,
+                'p_dir_url': p_dir.url,
+            }, context_instance=RequestContext(request))
+    else:
+        return HttpResponseRedirect('/wrong_url')
 
-        # Response Values.
+def get_url_data(request):
+    try:
+        p_dir_id = request.GET.get('p_dir_id', None)
+        p_dir_url = request.GET.get('p_dir_url', None)
+        p_dir = ''
 
-        url_list = []
-        is_child_dir = False
-        parent_dir = ""
+        if p_dir_id == '':
+            p_dir = Filesys.objects.get(url=p_dir_url)
+            p_dir_id = p_dir.id
+        else:
+            p_dir = Filesys.objects.get(id=p_dir_id)
+            p_dir_url = p_dir.url
 
-        # For secured dir.
+        # Get quick path
 
-        if this_dir_data.is_secured and not request.user.is_authenticated():
-            return HttpResponseRedirect('/login/?next='+this_dir_url)
+        quick_path = []
+        p_dir_list = filter(None, p_dir_url.split("/"))
 
-        # For quick path.
-
-        for i, item in enumerate(dir_list):
+        for i, item in enumerate(p_dir_list):
             url = ""
             for j in range(i+1):
-                url += "/" + dir_list[j]
-            url_list.append({'dir':dir_list[i], 'dir_url':url})
+                url += "/" + p_dir_list[j]
+            quick_path.append({'name':p_dir_list[i], 'url':url})
 
-        # For link to parent dir.
+        # Link to parent dir
 
-        if this_dir != "root":
-            is_child_dir = True
-            parent_dir = url_list[-2]
+        pp_dir = ""
 
-        return render_to_response('list.html', {
-            'this_dir': this_dir,
-            'this_dir_url': url,
-            'url_list': url_list,
-            'is_child_dir': is_child_dir,
-            'parent_dir': parent_dir,
-        }, context_instance=RequestContext(request))
+        if p_dir.parent_dir is not None:
+            pp_obj = Filesys.objects.get(id=p_dir.parent_dir)
+            pp_dir = {
+                'id': pp_obj.id,
+                'name': pp_obj.name,
+                'url': pp_obj.url
+            }
 
-    # For wrong url.
+        # Get filesys data
 
-    else:
-        return HttpResponse("WRONG URL")
+        c_dirs = []
+        c_files = []
+        auth_c_list = []
 
-def file_index(request):
-    this_file_url = request.META["PATH_INFO"]
-    this_file_hash = filter(None, this_file_url.split("/"))[-1]
-    this_file_data = Filesys.objects.filter(url=this_file_url)[0]
-    this_file_path = os.path.join(settings.FILES_ROOT, this_file_hash)
-
-    if this_file_data:
-
-        # For secured file.
-
-        if this_file_data.is_secured and not request.user.is_authenticated():
-            return HttpResponseRedirect('/login/?next='+this_file_url)
+        if request.user.is_authenticated():
+            auth_c_list = Filesys.objects.filter(parent_dir=p_dir_id).extra(select={'lower_name':'lower(name)'}).order_by('lower_name')
         else:
-            this_file = this_file_data.name + '.' + this_file_data.format
+            auth_c_list = Filesys.objects.filter(parent_dir=p_dir_id, is_secured=False).extra(select={'lower_name':'lower(name)'}).order_by('lower_name')
 
-            response = HttpResponse(file(this_file_path))
-            response['Content-Type'] = mimetypes.guess_type(this_file)[0]
-            response['Content-Disposition'] = 'attachment; filename=%s' % (smart_str(this_file))
-
-            return response
-    else:
-
-        # For wrong file path.
-
-        return HttpResponse("WRONG FILE PATH")
-
-def get_list_filesys(request):
-    this_dir = request.GET.get('this_dir', None)
-
-    try:
-        this_list = Filesys.objects.filter(parent_dir=this_dir).extra(select={'lower_name':'lower(name)'}).order_by('lower_name')
-        auth_dir_list = []
-        auth_file_list = []
-
-        dir_list = []
-        file_list = []
-
-        # Sorting
-
-        for item in this_list:
-            if request.user.is_authenticated():
-                if item.is_dir:
-                    auth_dir_list.append(item)
-                else:
-                    auth_file_list.append(item)
+        for item in auth_c_list:
+            if item.is_dir:
+                c_dirs.append({
+                    'id': item.id,
+                    'name': "/" + item.name,
+                    'url': item.url,
+                    'date': "-",
+                    'uploader': "-",
+                    'thumbnail': "",
+                    'is_secured': item.is_secured,
+                    'format': item.format
+                })
             else:
-                if not item.is_secured:
-                    if item.is_dir:
-                        auth_dir_list.append(item)
-                    else:
-                        auth_file_list.append(item)
+                c_files.append({
+                    'id': item.id,
+                    'name': item.name,
+                    'url': item.url,
+                    'date': item.date,
+                    'uploader': item.uploader.username,
+                    'thumbnail': item.thumbnail.name,
+                    'is_secured': item.is_secured,
+                    'format': item.format
+                })
 
-        # Content appending
-
-        for item in auth_dir_list:
-            dir_list.append({
-                'name': '/' + item.name,
-                'url': item.url,
-                'date': '-',
-                'uploader': '-',
-                'thumbnail': '',
-                'is_secured': item.is_secured,
-                'format': item.format
-            })
-
-        for item in auth_file_list:
-            file_list.append({
-                'name': item.name,
-                'url': item.url,
-                'date': item.date,
-                'uploader': item.uploader.username,
-                'thumbnail': item.thumbnail.name,
-                'is_secured': item.is_secured,
-                'format': item.format
-            })
-
-        contents = {'dir_list': dir_list, 'file_list': file_list}
+        contents = {
+            'p_dir': {
+                'id': p_dir.id,
+                'name': p_dir.name,
+                'url': p_dir.url
+            },
+            'quick_path': quick_path,
+            'pp_dir': pp_dir,
+            'dir_list': c_dirs,
+            'file_list': c_files
+        }
         output = json.dumps(contents, ensure_ascii=False, indent=4, cls=DjangoJSONEncoder)
 
         return HttpResponse(output)
-
     except:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("Something went wrong.")
+
+def get_file_data(request):
+    try:
+        file_url = request.META['PATH_INFO']
+        file_obj = Filesys.objects.get(url=file_url)
+
+        if file_obj.is_secured and not request.user.is_authenticated():
+            return HttpResponseRedirect('/nlogin/?n='+file_obj.url+'&r=secured_file')
+
+        file_nf = file_obj.name + '.' + file_obj.format
+
+        response =  StreamingHttpResponse(file_obj.file)
+        response['Content-Type'] = mimetypes.guess_type(file_nf)[0]
+        response['Content-Disposition'] = 'attachment; filename=%s' % (smart_str(file_nf))
+
+        return response
+    except:
+        return HttpResponseBadRequest("Wrong file path or error happened.")
 
 def _check_dir_url(url):
-    url_comp = filter(None, url.split("/"))
-    url_comp.reverse()
-    parent_dir = ""
-    ch = 0
-
-    for comp in url_comp:
-        if ch != 0:
-            if comp != parent_dir:
-                return False
-        dir = Filesys.objects.filter(name=comp)
-        parent_dir = ''.join(dir.values_list('parent_dir', flat=True))
-        ch += 1
-
-    return True
+    try:
+        dir = Filesys.objects.get(url=url)
+        return True, dir
+    except ObjectDoesNotExist:
+        return False, 0

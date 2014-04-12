@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/index.css">
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/popup.css">
+{% endblock %}
+{% block js %}
+<script type="text/javascript" src="{{STATIC_URL}}js/olim.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        // Initialize data
+        Data.p_dir = {
+            'id': "{{p_dir_id}}",
+            'name': "{{p_dir_name}}",
+            'url': "{{p_dir_url}}"
+        };
+        {% if user.is_authenticated %}
+        Data.is_auth = true;
+        {% else %}
+        Data.is_auth = false;
+        {% endif %}
+        // Initialize functions
+        Session.initialize();
+        Filesys.initialize();
+        Popup.initialize();
+    });
+</script>
+{% endblock %}
+{% block body %}
+<div id="wrapper">
+    <!-- start popup section -->
+    <div id="popup-wrapper">
+        <div id="popup-section">
+            <section id="popup-login">
+                <h2 class="login-title">
+                    <span>log in</span>
+                    <button class="login-close" type="button">close</button>
+                </h2>
+                <form class="login-form" action="javascript:;">
+                    {% csrf_token %}
+                    <div class="input-username">
+                        <label for="username">sparcs id</label>
+                        <input type="text" id="username" name="username">
+                    </div>
+                    <div class="input-password">
+                        <label for="password">password</label>
+                        <input type="password" id="password" name="password">
+                    </div>
+                    <div class="input-submit">
+                        <button type="submit" id="submit">enter</button>
+                    </div>
+                </form>
+            </section>
+            <section id="popup-umenu">
+                <span class="menu-deco"></span>
+                <ul class="menu-list">
+                    <li class="menu-logout">
+                        <span class="logout-loading"></span>
+                        <button type="button" class="logout-button">logout</button>
+                    </li>
+                    <li class="menu-profile">
+                        <button type="button" class="profile-button">profile</button>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </div>
+    <!-- end popup section -->
+    <!-- start content section -->
+    <div id="content-wrapper">
+        <header id="header-section">
+            <h1 class="header-title">olim service</h1>
+            <div class="header-auth-user">
+                <button class="user-menu-button">{{user.username}}</button>
+                <button class="file-upload-button">upload</button>
+            </div>
+            <div class="header-login">
+                <button type="button" class="login-button">login</button>
+            </div>
+        </header>
+        <nav id="quickpath-section">
+            <ul class="quickpath-list">
+                <!-- ajax 'get_url_data' -->
+            </ul>
+        </nav>
+        <section id="list-nav-section">
+            <h2 class="list-title"></h2>
+            <!-- Search function will be placed here -->
+        </section>
+        <section id="list-section">
+            <table>
+                <thead>
+                    <tr class="list-head">
+                        <th class="head-name">
+                            <button type="button" class="sort-down">name</button>
+                        </th>
+                        <th class="head-format">
+                            <button type="button">format</button>
+                        </th>
+                        <th class="head-uploader">
+                            <button type="button">uploader</button>
+                        </th>
+                        <th class="head-date">
+                            <button type="button">last modified</button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ajax 'get_url_data' -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+    <!-- end content section -->
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-#wrapper-popup{
+#popup-wrapper{
     position:absolute;
     display:none;
     top:0;
@@ -8,13 +8,20 @@
     background:rgba(0,0,0,0.7);
     z-index:10;
 }
-#popup-range{
+#popup-wrapper.umenu-bg{
+    background:transparent;
+    margin-top:72px;
+}
+#popup-section{
     position:relative;
     display:block;
     width:960px;
     height:100%;
     margin:0px auto;
 }
+
+/* POPUP LOGIN */
+
 #popup-login{
     width:320px;
     height:294px;
@@ -27,43 +34,44 @@
     display:none;
     z-index:100;
 }
-#popup-login .popup-title{
+#popup-login .login-title{
     height:56px;
-    background:#15c2d2;
     padding:18px 20px;
+    background:#15c2d2;
 }
-#popup-login .popup-title span{
+#popup-login .login-title span{
     font-size:20px;
     font-weight:400;
+    text-transform:uppercase;
     color:#fff;
     float:left;
 }
-#popup-login .popup-title .popup-close{
-    font-size:0;
+#popup-login .login-title button.login-close{
+    text-indent:-9999px;
     width:16px;
     height:16px;
-    background:url("/media/res/img_close.png") left top no-repeat;
     border:0;
     outline:none;
     float:right;
     margin-top:2px;
     cursor:pointer;
+    background:url("/media/res/img_close.png") left top no-repeat;
 }
-#popup-login .popup-login-form{
+#popup-login .login-form{
     padding:20px;
 }
-#popup-login .popup-login-form label{
+#popup-login .login-form label{
     font-size:15px;
     line-height:15px;
     margin-bottom:4px;
     color:#6f7375;
+    text-transform:uppercase;
 }
-#popup-login .popup-login-form input{
+#popup-login .login-form input{
     height:40px;
     width:280px;
     padding:11px 8px;
     font-size:18px;
-    line-height:18px;
     color:#0e929e;
     font-weight:400;
     border:1px solid #d7d8d9;
@@ -71,17 +79,16 @@
     margin-bottom:20px;
     outline:none;
 }
-#popup-login .popup-login-form input:focus{
+#popup-login .login-form input:focus{
     border:1px solid #ffb400;
     background:#fffaf2;
 }
-#popup-login .popup-login-form .input-enter button{
+#popup-login .login-form button#submit{
     width:88px;
     height:40px;
     padding:10px 0;
     text-align:center;
     font-size:20px;
-    line-height:20px;
     font-weight:400;
     color:#fff;
     background:#0e929e;
@@ -90,16 +97,90 @@
     outline:none;
     float:right;
     cursor:pointer;
-    text-indent:0px;
+    text-transform:uppercase;
+    text-indent:0;
 }
-#popup-login .popup-login-form .input-enter button:hover{
+#popup-login .login-form button#submit:hover{
     background:#075a62;
 }
-#popup-login .popup-login-form .input-enter button.disabled:hover{
-    background:#0b7079 url("/media/res/img_loading.gif") 50% 50% no-repeat;
-}
-#popup-login .popup-login-form .input-enter button.disabled{
+#popup-login .login-form button#submit.disabled{
     background:#0b7079 url("/media/res/img_loading.gif") 50% 50% no-repeat;
     cursor:progress;
     text-indent:-9999px;
+}
+#popup-login .login-form button#submit.disabled:hover{
+    background:#0b7079 url("/media/res/img_loading.gif") 50% 50% no-repeat;
+}
+
+/* POPUP USER MENU */
+
+#popup-umenu{
+    position:absolute;
+    top:0px;
+    right:114px;
+    height:86px;
+    z-index:100;
+    display:none;
+}
+#popup-umenu .menu-deco{
+    position:absolute;
+    width:10px;
+    height:8px;
+    background:url("/media/res/img_umenu_list_deco.png") top left no-repeat;
+    top:0;
+    right:12px;
+    z-index:110;
+}
+#popup-umenu .menu-list{
+    position:relative;
+    height:80px;
+    border:1px solid #d7c4a3;
+    border-radius:2px;
+    background:#fff5e5;
+    top:6px;
+    right:0;
+    z-index:100;
+}
+#popup-umenu .menu-list li{
+    width:79px;
+    height:78px;
+    float:left;
+    background:url("/media/res/img_umenu_sepline.png") right 50% no-repeat;
+}
+#popup-umenu .menu-list li:last-child{
+    width:78px;
+    background:none;
+}
+#popup-umenu .menu-list button{
+    width:78px;
+    height:78px;
+    border:0;
+    outline:none;
+    cursor:pointer;
+    background:none;
+    color:#9d978e;
+    padding-top:30px;
+    font-size:12px;
+    text-transform:uppercase;
+}
+#popup-umenu .menu-list button:hover{
+    color:#45413b;
+}
+#popup-umenu .menu-list span.logout-loading{
+    background:url("/media/res/img_loading_2.gif") 50% 50% no-repeat;
+    width:78px;
+    height:78px;
+    display:none;
+}
+#popup-umenu .menu-list button.logout-button{
+    background:url("/media/res/img_um_logout_nor.png") 50% 20px no-repeat;
+}
+#popup-umenu .menu-list button.logout-button:hover{
+    background-image:url("/media/res/img_um_logout_sel.png");
+}
+#popup-umenu .menu-list button.profile-button{
+    background:url("/media/res/img_um_profile_nor.png") 50% 20px no-repeat;
+}
+#popup-umenu .menu-list button.profile-button:hover{
+    background-image:url("/media/res/img_um_profile_sel.png");
 }
